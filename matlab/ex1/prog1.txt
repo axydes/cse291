@@ -1,0 +1,7 @@
+Optimization of MinFunc took 0.179164 seconds.
+Gradient descent took 120.684757 seconds.
+Closed form took 0.000606 seconds.
+RMS training error:
+ minFunc: 4.829489, gradient descent: 5.241879, closed form: 4.829489
+RMS testing error:
+ minFunc: 4.138386, gradient descent: 4.472633, closed form: 4.138386
