@@ -42,10 +42,10 @@ initTheta = rand(n,1);
 % TODO:  Implement the linear regression objective and gradient computations
 % in linear_regression.m
 %
-% tic;
-% options = struct('MaxIter', 200);
-% theta = minFunc(@linear_regression, initTheta, options, train.X, train.y);
-% fprintf('Optimization of MinFunc took %f seconds.\n', toc);
+tic;
+options = struct('MaxIter', 200);
+thetaMF = minFunc(@linear_regression, initTheta, options, train.X, train.y);
+fprintf('Optimization of MinFunc took %f seconds.\n', toc);
 
 
 % TODO:  Use 1) gradient descent 2)closed-form solution
@@ -53,12 +53,12 @@ initTheta = rand(n,1);
 % all three predictions on test data.
 %
 tic;
-theta = gradDesc(initTheta, 50000, train.X, train.y, 5e-9);
+thetaGrad = gradDesc(initTheta, 50000, train.X, train.y, 5e-9);
 fprintf('Gradient descent took %f seconds.\n', toc);
 
-% tic;
-% thetaClosed = closed(train.X, train.y);
-% fprintf('Closed form took %f seconds.\n', toc);
+tic;
+thetaClosed = closed(train.X, train.y);
+fprintf('Closed form took %f seconds.\n', toc);
 
 %% Below is an example of error calculation and plotting for one solution.%%
 
