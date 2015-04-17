@@ -1,5 +1,5 @@
 function [ theta ] = closed( X, y )
-%CLOSED Summary of this function goes here
+%CLOSED Closed form solution of linear regression: theta=inv(X'*X) * (X' * y)
 %   Detailed explanation goes here
 
 first = (X * y');

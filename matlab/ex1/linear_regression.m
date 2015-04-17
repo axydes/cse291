@@ -23,12 +23,15 @@
   
 %%% YOUR CODE HERE %%%
 
-ys = X' * theta;
-diff = ys - y';
-se = diff.^2;
+predY = X' * theta;
+errs = predY - y';
+
+%objective error function: sum of squared errors
+se = errs.^2;
 f = sum(se);
 
-mx = repmat(diff,1,n);
+%gradient: errors_i * X_i
+mx = repmat(errs,1,n);
 mx = mx .* X';
 g = sum(mx,1)';
 
