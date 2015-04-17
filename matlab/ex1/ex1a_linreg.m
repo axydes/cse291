@@ -55,7 +55,8 @@ if do_learn
     % all three predictions on test data.
     %
     tic;
-    thetaGrad = gradDesc(initTheta, 1000000, train.X, train.y, 5e-9);
+%     thetaGrad = gradDesc(initTheta, 200000, train.X, train.y, 5e-9);
+    thetaGrad = sgd(initTheta, 10000, train.X, train.y, 1e-6);
     fprintf('Gradient descent took %f seconds.\n', toc);
 
     tic;
