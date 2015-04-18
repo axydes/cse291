@@ -13,7 +13,7 @@ addpath ../common
 addpath ../common/minFunc_2012/minFunc
 addpath ../common/minFunc_2012/minFunc/compiled
 
-do_learn=true;
+do_learn=false;
 if do_learn
     % Load housing data from file.
     data = load('housing.data');
@@ -101,10 +101,11 @@ if (plot_prices)
   hold on;
   plot(predictedMF_prices,'bx');
   plot(predictedGrad_prices,'gx');
-  plot(predictedClosed_prices,'kx');
+  plot(predictedClosed_prices,'ko');
   legend('Actual Price', 'Predicted Price (minFunc)',...
       'Predicted Price (gradient descent)', 'Predicted Price (closed form)',...
       'Location','northwest');
   xlabel('House #');
   ylabel('House price ($1000s)');
+  title('Actual and Predicted prices');
 end
