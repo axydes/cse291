@@ -1,3 +1,4 @@
+close all; clear all;clc;
 addpath ../common
 addpath ../common/minFunc_2012/minFunc
 addpath ../common/minFunc_2012/minFunc/compiled
@@ -28,31 +29,28 @@ options = struct('MaxIter', 200);
 % Initialize theta.  We use a matrix where each column corresponds to a class,
 % and each row is a classifier coefficient for that class.
 % Inside minFunc, theta will be stretched out into a long vector (theta(:)).
-% We only use num_classes-1 columns, since the last column is always assumed 0.
-theta = rand(n,num_classes-1)*0.001;
+theta = rand(n,num_classes)*0.001;
 
-% Call minFunc with the softmax_regression_vec.m file as objective.
+% Call minFunc with the softmax_regression.m file as objective.
 %
-% TODO:  Implement batch softmax regression in the softmax_regression_vec.m
+% TODO:  Implement batch softmax regression in the softmax_regression.m
 % file using a vectorized implementation.
 %
 tic;
-theta(:)=minFunc(@softmax_regression_vec, theta(:), options, train.X, train.y);
+theta(:)=minFunc(@softmax_regression, theta(:), options, train.X, train.y);
 fprintf('Optimization took %f seconds.\n', toc);
-theta=[theta, zeros(n,1)]; % expand theta to include the last class.
 
-% Print out training accuracy.
-tic;
+% TODO:  1) check the gradient calculated above using your checker code.
+%        2) Use stochastic gradient descent for this problem.
+%        *3) Use batch gradient descent.
+%        4) Plot speed of convergence for 2 (and 3) (loss function - # of iteration)
+%        5) Compute training time and accuracy of train & test data.
+
+
+
+% Example of printing out training/test accuracy.
 accuracy = multi_classifier_accuracy(theta,train.X,train.y);
 fprintf('Training accuracy: %2.1f%%\n', 100*accuracy);
-
-% Print out test accuracy.
 accuracy = multi_classifier_accuracy(theta,test.X,test.y);
 fprintf('Test accuracy: %2.1f%%\n', 100*accuracy);
 
-
-% % for learning curves
-% global test
-% global train
-% test.err{end+1} = multi_classifier_accuracy(theta,test.X,test.y);
-% train.err{end+1} = multi_classifier_accuracy(theta,train.X,train.y);
