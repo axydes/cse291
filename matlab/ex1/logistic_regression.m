@@ -1,4 +1,4 @@
-function [f,g] = logistic_regression(theta, X,y)
+function [f,g] = logistic_regression(theta, X, y)
   %
   % Arguments:
   %   theta - A column vector containing the parameter values to optimize.
@@ -13,9 +13,19 @@ function [f,g] = logistic_regression(theta, X,y)
   f = 0;
   g = zeros(size(theta));
 
-
   %
   % TODO:  Compute the logistic regression objective function and gradient 
   %        using vectorized code.
   %        Store the objective function value in 'f', and the gradient in 'g'.
 %%% YOUR CODE HERE %%%
+
+predY = sigmoid(X'*theta);
+
+%objective error function: cross-entropy
+f = cross_entropy(y, predY);
+
+%gradient: 
+g = (predY' - y) * X';
+g = g';
+
+end
