@@ -13,7 +13,7 @@ addpath ../common
 addpath ../common/minFunc_2012/minFunc
 addpath ../common/minFunc_2012/minFunc/compiled
 
-do_learn=false;
+do_learn=true;
 if do_learn
     % Load housing data from file.
     data = load('housing.data');
@@ -109,3 +109,4 @@ if (plot_prices)
   ylabel('House price ($1000s)');
   title('Actual and Predicted prices');
 end
+
