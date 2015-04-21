@@ -9,6 +9,7 @@
 % ''Hedonic prices and the demand for clean air''
 % J. Environ. Economics & Management, vol.5, 81-102, 1978.
 %
+close all;clear all;clc;
 addpath ../common
 addpath ../common/minFunc_2012/minFunc
 addpath ../common/minFunc_2012/minFunc/compiled
@@ -55,7 +56,7 @@ if do_learn
     % all three predictions on test data.
     %
     tic;
-    thetaGrad = gradDesc(initTheta, 1000000, train.X, train.y, 5e-9);
+    thetaGrad = gradDesc(@linear_regression, initTheta, 1000000, train.X, train.y, 5e-9);
     fprintf('Gradient descent took %f seconds.\n', toc);
 
     tic;
