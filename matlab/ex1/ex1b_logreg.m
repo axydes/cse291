@@ -3,7 +3,8 @@ addpath ../common
 addpath ../common/minFunc_2012/minFunc
 addpath ../common/minFunc_2012/minFunc/compiled
 
-learning = false;
+% learning = false;
+learning = true;
 if learning
     close all;clear all;clc;
     
@@ -38,6 +39,7 @@ if learning
     tic;
     theta=minFunc(@logistic_regression, initTheta, options, train.X, train.y);
     fprintf('Optimization of MinFunc took %f seconds.\n', toc);
+    checkTheta(theta);
 
 
     % TODO:  1) Write your own gradient check code and check the gradient
@@ -47,19 +49,44 @@ if learning
     %        4) Plot speed of convergence for 2 (and 3) (loss function - # of iteration)
     %        5) Compute training time and accuracy of train & test data.
 
-
+    % 1) grad check
+    
+    % 2) SGD
     tic;
-    thetaGrad = gradDesc(@logistic_regression, initTheta, 1000, train.X, train.y, 5e-9);
+    [thetaSGD,lossesSGD] = sgd(@logistic_regression, initTheta, 50, train.X, train.y, 5e-9);
+    fprintf('SGD took %f seconds.\n', toc);
+    checkTheta(thetaSGD);
+
+    % 3) batch gradient descent
+    tic;
+    [thetaGrad,losses] = gradDesc(@logistic_regression, initTheta, 1000, train.X, train.y, 5e-9);
     fprintf('Gradient descent took %f seconds.\n', toc);
+    checkTheta(thetaGrad);
 
 end
-
 
 % Example of printing out training/test accuracy.
 accuracy = binary_classifier_accuracy(theta,train.X,train.y);
 fprintf('Training accuracy: %2.1f%%\n', 100*accuracy);
 accuracy = binary_classifier_accuracy(theta,test.X,test.y);
 fprintf('Test accuracy: %2.1f%%\n', 100*accuracy);
+
+figure;
+plot(lossesSGD);
+title('SGD Convergence');
+xlabel('Iteration #');
+ylabel('Loss');
+
+accuracySGD = binary_classifier_accuracy(thetaSGD,train.X,train.y);
+fprintf('Training accuracy: %2.1f%%\n', 100*accuracySGD);
+accuracySGD = binary_classifier_accuracy(thetaSGD,test.X,test.y);
+fprintf('Test accuracy: %2.1f%%\n', 100*accuracySGD);
+
+figure;
+plot(losses);
+title('Gradient Descent Convergence');
+xlabel('Iteration #');
+ylabel('Loss');
 
 accuracyGrad = binary_classifier_accuracy(thetaGrad,train.X,train.y);
 fprintf('Training accuracy: %2.1f%%\n', 100*accuracyGrad);

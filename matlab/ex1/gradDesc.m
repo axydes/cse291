@@ -1,8 +1,9 @@
-function [ theta ] = gradDesc( funObj, theta, maxIters, X, y, lambda )
+function [ theta, losses ] = gradDesc( funObj, theta, maxIters, X, y, lambda )
 %GRADDESC Performs gradient descent
 %   Detailed explanation goes here
 
 oldF = 9e99;
+losses = zeros(maxIters,1);
 for i=1:maxIters
     [f,g] = funObj(theta, X, y);
     theta = theta - g.*lambda;
@@ -15,6 +16,7 @@ for i=1:maxIters
         break;
     end
     oldF = f;
+    losses(i) = f;
 end
 
 end
