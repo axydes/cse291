@@ -2,11 +2,16 @@ function [ theta, losses ] = gradDesc( funObj, theta, maxIters, X, y, lambda )
 %GRADDESC Performs gradient descent
 %   Detailed explanation goes here
 
+fprintf('Iter\tLoss\n');
 oldF = 9e99;
 losses = zeros(maxIters,1);
 for i=1:maxIters
     [f,g] = funObj(theta, X, y);
     theta = theta - g.*lambda;
+    
+    if mod(i,round(maxIters*.1)) == 0
+        fprintf('%d\t%f\n',i,f);
+    end
     
     if isnan(f) || isnan(g(1)) || f < 1
         break;
@@ -18,6 +23,8 @@ for i=1:maxIters
     oldF = f;
     losses(i) = f;
 end
+
+theta = reshape(theta, size(X,1), size(y,1));
 
 end
 

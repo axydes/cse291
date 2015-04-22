@@ -1,4 +1,4 @@
-function [f,g] = softmax_regression(theta, X,y)
+function [f,g] = softmax_regression(theta, X, y)
   %
   % Arguments:
   %   theta - A vector containing the parameter values to optimize.
@@ -26,6 +26,15 @@ function [f,g] = softmax_regression(theta, X,y)
   %        Before returning g, make sure you form it back into a vector with g=g(:);
   %
 %%% YOUR CODE HERE %%%
+
+predY = softmax(X'*theta);
+
+%objective error function: cross-entropy
+f = softmax_cross_entropy(y', predY);
   
-  g=g(:); % make gradient a vector for minFunc
+g = (predY' - y) * X';
+g = g';
+g = g(:);
+
+end
 

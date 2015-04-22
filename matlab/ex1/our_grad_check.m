@@ -1,4 +1,4 @@
-function [ output_args ] = our_grad_check( fun, theta0, num_checks )
+function [ output_args ] = our_grad_check( fun, theta0, num_checks, X, y )
 %OUR_GRAD_CHECK Summary of this function goes here
 %   Detailed explanation goes here
    
@@ -8,16 +8,16 @@ function [ output_args ] = our_grad_check( fun, theta0, num_checks )
     for i=1:num_checks
         th = theta0;
         n = size(th,1);
-        w = randi(size(th,1));
+        w = randi(numel(th));
         eps = 10e-4;
-        X = randn(n,1);
-        y = rand(1);
-        e = zeros(n,1);
-        e(w) = 1;
+        thPos = th;
+        thPos(w) = thPos(w)+eps;
+        thNeg = th;
+        thNeg(w) = thNeg(w)-eps;
         
         [f,g] = fun(th, X, y);
-        f1 = fun(th+(e*eps), X, y);
-        f2 = fun(th-(e*eps), X, y);
+        f1 = fun(thPos, X, y);
+        f2 = fun(thNeg, X, y);
         numGrad = (f1 - f2) / (2*eps);
         error = g(w) - numGrad;
         
