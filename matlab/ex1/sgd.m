@@ -1,19 +1,21 @@
-function [ theta, losses ] = sgd( funObj, theta, maxIters, X, y, lambda )
-%GRADDESC Performs stochastic gradient descent
-%   Detailed explanation goes here
+function [ theta, losses ] = sgd( funObj, theta, maxIters, X, y, alpha )
+%sgd Performs stochastic gradient descent
 
 fprintf('Iter\tLoss\n');
 
 oldLoss=9e99;
-losses = zeros(maxIters,1);
 for i=1:maxIters    
     for j=1:size(X,2) %# samples
         [f,g] = funObj(theta, X(:,j), y(:,j));
         
-        theta = theta - g.*lambda;
+        theta = theta - g.*alpha;
     end
 
-    [f,g] = funObj(theta, X, y);    
+    [f,g] = funObj(theta, X, y);
+    if f > oldLoss
+        fprintf('Objective value increased, stopping.\n');
+        break;
+    end
     oldLoss = f;
     losses(i) = f;
     
