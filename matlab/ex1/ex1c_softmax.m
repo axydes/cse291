@@ -1,5 +1,5 @@
 load=false;
-% load=true;
+load=true;
 if load
     close all; clear all;clc;
     addpath ../common
@@ -38,7 +38,7 @@ if load
 end
 
 learn=false;
-% learn=true;
+learn=true;
 if learn
     % Train softmax classifier using minFunc
     options = struct('MaxIter', 200);
@@ -54,9 +54,10 @@ if learn
     % file using a vectorized implementation.
     %
     tic;
-    theta(:)=minFunc(@softmax_regression, initTheta(:), options, train.X, newTrainY);
+    theta=minFunc(@softmax_regression, initTheta(:), options, train.X, newTrainY);
+    theta = reshape(theta, size(train.X,1), size(newTrainY,1));
     fprintf('Optimization of MinFunc took %f seconds.\n', toc);
-    checkTheta(theta(:,1));
+%     checkTheta(theta(:,1));
 
 
     % TODO:  1) check the gradient calculated above using your checker code.
@@ -71,20 +72,22 @@ if learn
         tic;
         [thetaSGD,lossesSGD] = sgd(@softmax_regression, initTheta(:), 50, train.X, newTrainY, 1e-2);
         fprintf('SGD took %f seconds.\n', toc);
-        checkTheta(thetaSGD(:,1));
+%         checkTheta(thetaSGD(:,1));
 
         % 3) batch gradient descent
         tic;
         [thetaGrad,losses] = gradDesc(@softmax_regression, initTheta(:), 100, train.X, newTrainY, 1e-5);
         fprintf('Gradient descent took %f seconds.\n', toc);
-        checkTheta(thetaGrad(:,1));
+%         checkTheta(thetaGrad(:,1));
 end
+
+thetaFig(theta,thetaSGD,thetaGrad,false);
 
 % Example of printing out training/test accuracy.
 accuracy = multi_classifier_accuracy(theta,train.X,train.y);
-fprintf('Training accuracy: %2.1f%%\n', 100*accuracy);
+fprintf('minFunc Training accuracy: %2.1f%%\n', 100*accuracy);
 accuracy = multi_classifier_accuracy(theta,test.X,test.y);
-fprintf('Test accuracy: %2.1f%%\n', 100*accuracy);
+fprintf('minFunc Test accuracy: %2.1f%%\n', 100*accuracy);
 
 figure;
 plot(lossesSGD);
@@ -93,18 +96,18 @@ xlabel('Iteration #');
 ylabel('Loss');
 
 accuracySGD = multi_classifier_accuracy(thetaSGD,train.X,train.y);
-fprintf('Training accuracy: %2.1f%%\n', 100*accuracySGD);
+fprintf('SGD Training accuracy: %2.1f%%\n', 100*accuracySGD);
 accuracySGD = multi_classifier_accuracy(thetaSGD,test.X,test.y);
-fprintf('Test accuracy: %2.1f%%\n', 100*accuracySGD);
+fprintf('SGD Test accuracy: %2.1f%%\n', 100*accuracySGD);
 
 figure;
 plot(losses);
-title('Gradient Descent Convergence');
+title('BGD Convergence');
 xlabel('Iteration #');
 ylabel('Loss');
 
 accuracyGrad = multi_classifier_accuracy(thetaGrad,train.X,train.y);
-fprintf('Training accuracy: %2.1f%%\n', 100*accuracyGrad);
+fprintf('Gradient Descent Training accuracy: %2.1f%%\n', 100*accuracyGrad);
 accuracyGrad = multi_classifier_accuracy(thetaGrad,test.X,test.y);
-fprintf('Test accuracy: %2.1f%%\n', 100*accuracyGrad);
+fprintf('Gradient Descent Test accuracy: %2.1f%%\n', 100*accuracyGrad);
 

@@ -1,6 +1,5 @@
 function [ ] = checkTheta( theta )
-%CHECKTHETA Summary of this function goes here
-%   Detailed explanation goes here
+%CHECKTHETA Used to debug weights while developing
 
     %remove bias
     th = theta(2:end);

@@ -3,7 +3,7 @@ addpath ../common
 addpath ../common/minFunc_2012/minFunc
 addpath ../common/minFunc_2012/minFunc/compiled
 
-% learning = false;
+learning = false;
 learning = true;
 if learning
     close all;clear all;clc;
@@ -39,7 +39,7 @@ if learning
     tic;
     theta=minFunc(@logistic_regression, initTheta, options, train.X, train.y);
     fprintf('Optimization of MinFunc took %f seconds.\n', toc);
-    checkTheta(theta);
+%     checkTheta(theta);
 
 
     % TODO:  1) Write your own gradient check code and check the gradient
@@ -55,21 +55,23 @@ if learning
     tic;
     [thetaSGD,lossesSGD] = sgd(@logistic_regression, initTheta, 50, train.X, train.y, 5e-9);
     fprintf('SGD took %f seconds.\n', toc);
-    checkTheta(thetaSGD);
+%     checkTheta(thetaSGD);
 
     % 3) batch gradient descent
     tic;
     [thetaGrad,losses] = gradDesc(@logistic_regression, initTheta, 1000, train.X, train.y, 5e-9);
     fprintf('Gradient descent took %f seconds.\n', toc);
-    checkTheta(thetaGrad);
+%     checkTheta(thetaGrad);
 
 end
 
+thetaFig(theta,thetaSGD,thetaGrad,true);
+
 % Example of printing out training/test accuracy.
 accuracy = binary_classifier_accuracy(theta,train.X,train.y);
-fprintf('Training accuracy: %2.1f%%\n', 100*accuracy);
+fprintf('minFunc Training accuracy: %2.1f%%\n', 100*accuracy);
 accuracy = binary_classifier_accuracy(theta,test.X,test.y);
-fprintf('Test accuracy: %2.1f%%\n', 100*accuracy);
+fprintf('minFunc Test accuracy: %2.1f%%\n', 100*accuracy);
 
 figure;
 plot(lossesSGD);
@@ -78,18 +80,18 @@ xlabel('Iteration #');
 ylabel('Loss');
 
 accuracySGD = binary_classifier_accuracy(thetaSGD,train.X,train.y);
-fprintf('Training accuracy: %2.1f%%\n', 100*accuracySGD);
+fprintf('SGD Training accuracy: %2.1f%%\n', 100*accuracySGD);
 accuracySGD = binary_classifier_accuracy(thetaSGD,test.X,test.y);
-fprintf('Test accuracy: %2.1f%%\n', 100*accuracySGD);
+fprintf('SGD Test accuracy: %2.1f%%\n', 100*accuracySGD);
 
 figure;
 plot(losses);
-title('Gradient Descent Convergence');
+title('BGD Convergence');
 xlabel('Iteration #');
 ylabel('Loss');
 
 accuracyGrad = binary_classifier_accuracy(thetaGrad,train.X,train.y);
-fprintf('Training accuracy: %2.1f%%\n', 100*accuracyGrad);
+fprintf('Gradient descent Training accuracy: %2.1f%%\n', 100*accuracyGrad);
 accuracyGrad = binary_classifier_accuracy(thetaGrad,test.X,test.y);
-fprintf('Test accuracy: %2.1f%%\n', 100*accuracyGrad);
+fprintf('Gradient descent Test accuracy: %2.1f%%\n', 100*accuracyGrad);
 
