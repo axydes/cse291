@@ -70,7 +70,7 @@ if learn
 
         % 2) SGD
         tic;
-        [thetaSGD,lossesSGD] = sgd(@softmax_regression, initTheta(:), 50, train.X, newTrainY, 1e-2);
+        [thetaSGD,lossesSGD] = sgd(@softmax_regression, initTheta(:), 100, train.X, newTrainY, 1e-5, 0.05);
         fprintf('SGD took %f seconds.\n', toc);
 %         checkTheta(thetaSGD(:,1));
 
