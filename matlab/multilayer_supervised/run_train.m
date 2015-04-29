@@ -13,6 +13,12 @@ addpath(genpath('../common/minFunc_2012/minFunc'));
 
 %% TODO: load face data
 
+% [sinG,cosG]=get_gabors;
+% [pofas,nims]=load_images;
+% [conns,fullConns] = convolveImages(pofas,sinG,cosG);
+zscoreImgs(conns);
+
+return
 
 %% populate ei with the network architecture to train
 % ei is a structure you can use to store hyperparameters of the network
@@ -22,13 +28,13 @@ addpath(genpath('../common/minFunc_2012/minFunc'));
 
 %TODO: decide proper hyperparameters.
 % dimension of input features FOR YOU TO DECIDE
-ei.input_dim = ;
-% number of output classes FOR YOU TO DECIDE
-ei.output_dim = ;
-% sizes of all hidden layers and the output layer FOR YOU TO DECIDE
-ei.layer_sizes = [, ei.output_dim];
-% scaling parameter for l2 weight regularization penalty
-ei.lambda = ;
+% ei.input_dim = ;
+% % number of output classes FOR YOU TO DECIDE
+% ei.output_dim = ;
+% % sizes of all hidden layers and the output layer FOR YOU TO DECIDE
+% ei.layer_sizes = [, ei.output_dim];
+% % scaling parameter for l2 weight regularization penalty
+% ei.lambda = ;
 % which type of activation function to use in hidden layers
 % feel free to implement support for different activation function
 ei.activation_fun = 'logistic';
