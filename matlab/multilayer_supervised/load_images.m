@@ -21,6 +21,7 @@ function [ pofaImgs, nimImgs ] = load_images()
             pofaImgs{i,2} = rs;
         end
     end
+%     pofaImgs=parseNames(pofaImgs,false);
     
     nimDir = '/home/axydes/Documents/MATLAB/NimStim/';
     nimNames = dir(nimDir);
@@ -42,7 +43,8 @@ function [ pofaImgs, nimImgs ] = load_images()
             
             nimImgs{i,2} = rs;
         end
-    end
+    end    
+    nimImgs=parseNames(nimImgs,true);
 
 end
 

@@ -13,18 +13,22 @@ addpath(genpath('../common/minFunc_2012/minFunc'));
 
 %% TODO: load face data
 
-% [sinG,cosG]=get_gabors;
+[sinG,cosG]=get_gabors;
 [pofas,nims]=load_images;
-% [conns,fullConns] = convolveImages(pofas,sinG,cosG);
-% zscored=zscoreImgs(conns);
-% reducedPofas=reducedDims(zscored);
-
 [conns,fullConns] = convolveImages(nims,sinG,cosG);
 zscored=zscoreImgs(conns);
 reducedNims=reducedDims(zscored);
 
 
-return
+[data_train,labels_train,data_test,labels_test]=separateData(nims,reducedNims);
+maxID=max(cat(1,labels_train,labels_test));
+minID=min(cat(1,labels_train,labels_test));
+
+labels_train = labels_train-minID+1;
+labels_test = labels_test-minID+1;
+
+newmaxID=max(cat(1,labels_train,labels_test));
+newminID=min(cat(1,labels_train,labels_test));
 
 %% populate ei with the network architecture to train
 % ei is a structure you can use to store hyperparameters of the network
@@ -57,13 +61,15 @@ options.Method = 'lbfgs';
 
 %% run training
 [opt_params,opt_value,exitflag,output] = minFunc(@supervised_dnn_cost,...
-    params,options,ei, data_train, labels_train);
+    params,options,ei, data_train, onehot(labels_train,newmaxID));
 
 % TODO:  1) check the gradient calculated by supervised_dnn_cost.m
 %        2) Decide proper hyperparamters and train the network.
 %        3) Implement SGD version of solution.
 %        4) Plot speed of convergence for 1 and 3.
 %        5) Compute training time and accuracy of train & test data.
+
+finalStack = params2stack(opt_params, ei);
 
 %% compute accuracy on the test and train set
 [~, ~, pred] = supervised_dnn_cost( opt_params, ei, data_test, [], true);
