@@ -11,17 +11,21 @@ end;
 %% reshape into network
 stack = params2stack(theta, ei);
 numHidden = numel(ei.layer_sizes) - 1;
+outLayer=numel(ei.layer_sizes);
 hAct = cell(numHidden+1, 1);
 gradStack = cell(numHidden+1, 1);
 n=size(data,1);
 
-
 %% forward prop
 %%% YOUR CODE HERE %%%
-hiddenActivations=sigmoid(data*stack{1,1}.W' + repmat(stack{1,1}.b',n,1));
+hAct{1}=sigmoid(data*stack{1,1}.W' + repmat(stack{1,1}.b',n,1));
 
-out=hiddenActivations*stack{2,1}.W';
-outBias=repmat(stack{2,1}.b',n,1);
+for layer=2:numHidden
+    hAct{layer}=sigmoid(hAct{layer-1}*stack{layer,1}.W' + repmat(stack{layer,1}.b',n,1));
+end
+
+out=hAct{numHidden}*stack{outLayer,1}.W';
+outBias=repmat(stack{outLayer,1}.b',n,1);
 outputs=softmax(out + outBias);
 pred_prob=outputs';
 
@@ -36,27 +40,45 @@ end;
 %%% YOUR CODE HERE %%%
 cost = softmax_cross_entropy(labels,outputs);
 
+for layer=1:outLayer
+    cost = cost + 0.5*ei.lambda*norm(stack{layer,1}.W);
+end
+
 %% compute gradients using backpropagation
 %%% YOUR CODE HERE %%%
 outDelta = (outputs - labels);
-outGrad = outDelta' * hiddenActivations;
-gradStack{2,1}.W = outGrad;
-
-gprime=hiddenActivations .* (1-hiddenActivations);
-hiddenDelta = outDelta*stack{2,1}.W;
-hiddenGrad=(gprime.*hiddenDelta)'*data;
-gradStack{1,1}.W = hiddenGrad;
-
-%% compute weight penalty cost and gradient for bias terms
-%%% YOUR CODE HERE %%%
+outGrad = outDelta' * hAct{numHidden};
+gradStack{outLayer,1}.W = outGrad + ei.lambda*(stack{outLayer,1}.W);
 outBiasGrad = mean(outDelta);
-gradStack{2,1}.b = outBiasGrad';
+gradStack{outLayer,1}.b = outBiasGrad';
 
-hiddenBiasGrad = mean(hiddenDelta);
-gradStack{1,1}.b = hiddenBiasGrad';
+for layer=numHidden:-1:1
+    gprime=hAct{layer} .* (1-hAct{layer});
+    outDelta = outDelta*stack{layer+1,1}.W;
+    
+    if layer==1
+        ins=data;
+    else
+        ins=hAct{layer-1};
+    end
+    hiddenGrad=(gprime.*outDelta)'*ins;
+    gradStack{layer,1}.W = hiddenGrad + ei.lambda*(stack{layer,1}.W);
+
+    hiddenBiasGrad = mean(outDelta);
+    gradStack{layer,1}.b = hiddenBiasGrad';
+end
+
 
 %% reshape gradients into vector
 [grad] = stack2params(gradStack);
+
+% persistent old_grad;
+% 
+% if ~isempty(old_grad)
+%     grad = grad + ei.mu*old_grad;
+% end
+% old_grad = grad;
+
 end
 
 

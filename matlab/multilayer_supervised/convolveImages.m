@@ -2,8 +2,9 @@ function [ conns, fullConns ] = convolveImages( images, sinG, cosG )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
+    outWidth=8;
     n=size(images,1);
-    conns=zeros(8,8,40,n);
+    conns=zeros(outWidth,outWidth,40,n);
     for i=1:n
         disp(i);
         imWidth=size(images{i,2},1);
@@ -27,7 +28,7 @@ function [ conns, fullConns ] = convolveImages( images, sinG, cosG )
             tempCon = tempCon(mstart:mstop,mstart:mstop);
             fullConns{i,j} = tempCon;
 
-            ds = imresize(tempCon,[8,8],'cubic');
+            ds = imresize(tempCon,[outWidth,outWidth],'cubic');
             conns(:,:,j,i) = ds;
         end
     end
@@ -35,7 +36,7 @@ function [ conns, fullConns ] = convolveImages( images, sinG, cosG )
 %     figure;
 %     for j=1:40
 %     subplot(5,8,j);
-%     imshow(conns(i,j)/max(images(i,j,:,:)));
+%     imshow(conns(:,:,j)/256);%/max(images(i,j,:,:)));
 %     end
 
 end

@@ -18,18 +18,12 @@ addpath(genpath('../common/minFunc_2012/minFunc'));
 % [conns,fullConns] = convolveImages(nims,sinG,cosG);
 % zscored=zscoreImgs(conns);
 % reducedNims=reducedDims(zscored);
-% 
-% figure;
-% for j=1:40
-% subplot(5,8,j);
-% imshow(zscored(:,:,j,1)/max(max(zscored(:,:,j,1))));
-% end
-% imshow(reducedNims);
-% 
-% fname='/home/axydes/Documents/MATLAB/nims_preproc2.mat';
-% save(fname,'sinG','cosG','nims','conns','fullConns','reducedNims');
-
 % load('nims_preproc.mat');
+
+
+mus=[-.01, 0, 0.01, 0.1, 0.5, 0.9];
+for m=1:numel(mus)
+    for j=1:20
 
 [data_train,labels_train,data_test,labels_test]=separateData(nims,reducedNims);
 maxID=max(cat(1,labels_train,labels_test));
@@ -58,13 +52,9 @@ ei.layer_sizes = [30, ei.output_dim];
 ei.lambda = 1e-5;
 % momentum term
 ei.mu = 0.01;
-% learning rate
-ei.alpha = 1e-2;
 % which type of activation function to use in hidden layers
 % feel free to implement support for different activation function
 ei.activation_fun = 'logistic';
-
-maxIters=1000;
 
 %% setup random initial weights
 stack = initialize_weights(ei);
@@ -77,14 +67,13 @@ options.maxFunEvals = 1e6;
 options.Method = 'lbfgs';
 
 %% run training
+
+        ei.mu=mus(m);
         
         clear supervised_dnn_cost;
         
-% [opt_params,opt_value,exitflag,output] = minFunc(@supervised_dnn_cost,...
-%     params,options,ei, data_train, onehot(labels_train,newmaxID));
-
-[opt_params, sgdLosses] = sgd_nn(@supervised_dnn_cost, params, maxIters, data_train,...
-    onehot(labels_train,newmaxID), ei, 1);
+[opt_params,opt_value,exitflag,output] = minFunc(@supervised_dnn_cost,...
+    params,options,ei, data_train, onehot(labels_train,newmaxID));
 
 % TODO:  1) check the gradient calculated by supervised_dnn_cost.m
 % grad_check(@supervised_dnn_cost, params, 50, ei, data_train, onehot(labels_train,newmaxID), false);
@@ -98,10 +87,22 @@ finalStack = params2stack(opt_params, ei);
 %% compute accuracy on the test and train set
 [~, ~, pred] = supervised_dnn_cost( opt_params, ei, data_test, [], true);
 [~,pred] = max(pred);
-acc_test = mean(pred'==labels_test);
-fprintf('test accuracy: %f\n', acc_test);
+acc_test(m,j) = mean(pred'==labels_test);
+fprintf('test accuracy: %f\n', acc_test(m,j));
 
 [~, ~, pred] = supervised_dnn_cost( opt_params, ei, data_train, [], true);
 [~,pred] = max(pred);
 acc_train = mean(pred'==labels_train);
 fprintf('train accuracy: %f\n', acc_train);
+
+    end
+end
+
+save('nimstim_id_mu_grid.mat','acc_test');
+
+means=mean(acc_test,2);
+for i=1:numel(mus)
+    stds(i)=std(acc_test(i,:));    
+end
+figure;
+errorbar(means,stds);

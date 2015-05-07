@@ -35,7 +35,8 @@ function [ pofaImgs, nimImgs ] = load_images()
             grayed=rgb2gray(imread(fullName,'BMP'));
             height = size(grayed,1);
             width = size(grayed,2);
-            cropped = grayed(round(height/4):round(5*height/6),round(width/5):round(4*width/5));
+%             cropped = grayed(round(height/4):round(5*height/6),round(width/5):round(4*width/5));
+            cropped = grayed;
             rs = double(imresize(cropped,[imWidth,imWidth]));
             
             rs = rs - mean2(rs);
