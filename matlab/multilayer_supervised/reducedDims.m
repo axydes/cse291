@@ -1,10 +1,14 @@
-function [ zscored ] = reducedDims( images )
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+function [ zscored ] = reducedDims( images, is_pofa )
+%reducedDims PCA and zscore images
     
     n=size(images,4);
     imWidth=size(images,1)*size(images,2);
     reduced=zeros(n,8*imWidth,5);
+    if is_pofa
+        num_comps=16;
+    else
+        num_comps=8;
+    end        
 
     %Reduce each scale to a vector
     for i=1:n        
@@ -21,12 +25,12 @@ function [ zscored ] = reducedDims( images )
         tempmat=reduced(:,:,j)';
         size(tempmat);
         cvar=cov(tempmat);
-        [V(:,:,j),D]=eigs(cvar,8);
+        [V(:,:,j),D]=eigs(cvar,num_comps);
     end
     
     %Concantenate
     for j=1:5
-        ccd(:,(j-1)*8+1:(j*8))=V(:,:,j);
+        ccd(:,(j-1)*num_comps+1:(j*num_comps))=V(:,:,j);
     end
         
     %zscore

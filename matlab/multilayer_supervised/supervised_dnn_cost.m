@@ -18,23 +18,22 @@ n=size(data,1);
 
 %% forward prop
 %%% YOUR CODE HERE %%%
-hAct{1}=sigmoid(data*stack{1,1}.W' + repmat(stack{1,1}.b',n,1));
+if numHidden==0
+    out=data*stack{outLayer,1}.W';
+    outBias=repmat(stack{outLayer,1}.b',n,1);
+    outputs=softmax(out + outBias);
+    pred_prob=outputs';
+else
+    hAct{1}=tanh(data*stack{1,1}.W' + repmat(stack{1,1}.b',n,1));
+    for layer=2:numHidden
+        hAct{layer}=tanh(hAct{layer-1}*stack{layer,1}.W' + repmat(stack{layer,1}.b',n,1));
+    end
 
-for layer=2:numHidden
-    hAct{layer}=sigmoid(hAct{layer-1}*stack{layer,1}.W' + repmat(stack{layer,1}.b',n,1));
+    out=hAct{numHidden}*stack{outLayer,1}.W';
+    outBias=repmat(stack{outLayer,1}.b',n,1);
+    outputs=softmax(out + outBias);
+    pred_prob=outputs';
 end
-
-out=hAct{numHidden}*stack{outLayer,1}.W';
-outBias=repmat(stack{outLayer,1}.b',n,1);
-outputs=softmax(out + outBias);
-pred_prob=outputs';
-
-%% return here if only predictions desired.
-if po
-  cost = -1; ceCost = -1; wCost = -1; numCorrect = -1;
-  grad = [];  
-  return;
-end;
 
 %% compute cost
 %%% YOUR CODE HERE %%%
@@ -44,16 +43,28 @@ for layer=1:outLayer
     cost = cost + 0.5*ei.lambda*norm(stack{layer,1}.W);
 end
 
+%% return here if only predictions desired.
+if po
+  ceCost = -1; wCost = -1; numCorrect = -1;
+  grad = [];  
+  return;
+end;
+
 %% compute gradients using backpropagation
 %%% YOUR CODE HERE %%%
-outDelta = (outputs - labels);
-outGrad = outDelta' * hAct{numHidden};
+if numHidden==0
+    outDelta = (outputs - labels);
+    outGrad = outDelta' * data;
+else
+    outDelta = (outputs - labels);
+    outGrad = outDelta' * hAct{numHidden};
+end
 gradStack{outLayer,1}.W = outGrad + ei.lambda*(stack{outLayer,1}.W);
-outBiasGrad = mean(outDelta);
+outBiasGrad = mean(outDelta,1);
 gradStack{outLayer,1}.b = outBiasGrad';
 
 for layer=numHidden:-1:1
-    gprime=hAct{layer} .* (1-hAct{layer});
+    gprime=1-(hAct{layer}.^2);
     outDelta = outDelta*stack{layer+1,1}.W;
     
     if layer==1
@@ -64,7 +75,7 @@ for layer=numHidden:-1:1
     hiddenGrad=(gprime.*outDelta)'*ins;
     gradStack{layer,1}.W = hiddenGrad + ei.lambda*(stack{layer,1}.W);
 
-    hiddenBiasGrad = mean(outDelta);
+    hiddenBiasGrad = mean(outDelta,1);
     gradStack{layer,1}.b = hiddenBiasGrad';
 end
 
@@ -72,6 +83,7 @@ end
 %% reshape gradients into vector
 [grad] = stack2params(gradStack);
 
+% minFunc Momentum code, uncomment the below to activate
 % persistent old_grad;
 % 
 % if ~isempty(old_grad)

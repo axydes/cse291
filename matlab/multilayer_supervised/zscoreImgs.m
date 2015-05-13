@@ -1,7 +1,7 @@
 function [ images ] = zscoreImgs( images )
-%zscore Summary of this function goes here
-%   Detailed explanation goes here
+%zscore zscore the images (subtract mean, divide std)
 
+% Debug code
 %     figure;
 %     for j=1:40
 %     subplot(5,8,j);
@@ -15,7 +15,8 @@ function [ images ] = zscoreImgs( images )
             images(:,:,j,i) = (images(:,:,j,i) - immean) ./imstd;
         end        
     end
-    
+ 
+% Debug code
 %     figure;
 %     for j=1:40
 %     subplot(5,8,j);

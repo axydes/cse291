@@ -1,6 +1,5 @@
 function [ mat ] = onehot( idx, maxNum )
-%UNTITLED4 Summary of this function goes here
-%   Detailed explanation goes here
+%onehot Create a vector (maxNum in length), set idx value to 1
 
     mat=zeros(length(idx),maxNum);
     for i=1:length(idx)

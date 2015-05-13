@@ -1,8 +1,7 @@
 function [ conns, fullConns ] = convolveImages( images, sinG, cosG )
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+%convolveImages convolve the 40 Gabor filters with all the images
 
-    outWidth=8;
+    outWidth=12;
     n=size(images,1);
     conns=zeros(outWidth,outWidth,40,n);
     for i=1:n
@@ -19,8 +18,6 @@ function [ conns, fullConns ] = convolveImages( images, sinG, cosG )
 
             tempCon = sqrt(tempConSin.^2 + tempConCos.^2);
 
-    %         tempCon = tempCon / max(tempCon(:));
-
             m=size(tempCon,1);
             mstart=round((m-imWidth)/2);
             mstop=mstart+imWidth;
@@ -33,6 +30,7 @@ function [ conns, fullConns ] = convolveImages( images, sinG, cosG )
         end
     end
 
+% Debug code
 %     figure;
 %     for j=1:40
 %     subplot(5,8,j);

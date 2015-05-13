@@ -1,6 +1,5 @@
 function [ gm ] = gabor( theta, k, sigma, width )
-%gabor Summary of this function goes here
-%   Detailed explanation goes here
+%gabor Create a single gabor filter given scale, orientation, sigma, size
 
     start = -(width/2);
     stop = width/2;

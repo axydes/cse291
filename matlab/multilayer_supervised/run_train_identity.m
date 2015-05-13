@@ -11,35 +11,53 @@ ei = [];
 addpath ../common;
 addpath(genpath('../common/minFunc_2012/minFunc'));
 
-%% TODO: load face data
+use_mf=false;
+% use_mf=true;
 
-% [sinG,cosG]=get_gabors;
-% [pofas,nims]=load_images;
-% [conns,fullConns] = convolveImages(nims,sinG,cosG);
-% zscored=zscoreImgs(conns);
-% reducedNims=reducedDims(zscored);
-% 
-% figure;
-% for j=1:40
-% subplot(5,8,j);
-% imshow(zscored(:,:,j,1)/max(max(zscored(:,:,j,1))));
-% end
-% imshow(reducedNims);
-% 
-% fname='/home/axydes/Documents/MATLAB/nims_preproc2.mat';
-% save(fname,'sinG','cosG','nims','conns','fullConns','reducedNims');
+do_preproc=false;
+% do_preproc=true;
 
-% load('nims_preproc.mat');
+%% Image preprocessing
+if do_preproc
+    [sinG,cosG]=get_gabors(false);
+    [~,nims]=load_images(false);
+    [conns,fullConns] = convolveImages(nims,sinG,cosG);
+    zscored=zscoreImgs(conns);
+    reducedNims=reducedDims(zscored,false);
 
-[data_train,labels_train,data_test,labels_test]=separateData(nims,reducedNims);
-maxID=max(cat(1,labels_train,labels_test));
-minID=min(cat(1,labels_train,labels_test));
+    % plot gabor filters
+    figure;
+    for j=1:40
+    subplot(6,8,j);
+    imshow(sinG(:,:,j),[]);
+    end
+    for j=1:8
+        subplot(6,8,40+j);
+        imshow(nims{j,2},[]);
+    end
 
-labels_train = labels_train-minID+1;
-labels_test = labels_test-minID+1;
+    % Debugging code
+    figure;
+    for j=1:40
+    subplot(5,8,j);
+    imshow(zscored(:,:,j,1)/max(max(zscored(:,:,j,1))));
+    end
+    imshow(reducedNims);
 
-newmaxID=max(cat(1,labels_train,labels_test));
-newminID=min(cat(1,labels_train,labels_test));
+    % Save preprocessed data to reduce startup time
+    fname='/home/axydes/Documents/MATLAB/nims_preproc3.mat';
+    save(fname,'sinG','cosG','nims','conns','fullConns','reducedNims');
+else
+    load('nims_preproc.mat');
+end
+
+clear acc_test
+clear acc_train
+
+for i=1%:25
+
+[data_train,labels_train,data_test,labels_test,minID,maxID,newmaxID,newminID]=separateData(nims,reducedNims);
+
 
 %% populate ei with the network architecture to train
 % ei is a structure you can use to store hyperparameters of the network
@@ -51,20 +69,20 @@ newminID=min(cat(1,labels_train,labels_test));
 % dimension of input features FOR YOU TO DECIDE
 ei.input_dim = 40;
 % number of output classes FOR YOU TO DECIDE
-ei.output_dim = 23;
+ei.output_dim = 22;
 % sizes of all hidden layers and the output layer FOR YOU TO DECIDE
-ei.layer_sizes = [30, ei.output_dim];
+ei.layer_sizes = [100, ei.output_dim];
 % scaling parameter for l2 weight regularization penalty
-ei.lambda = 1e-5;
+ei.lambda = 1e-1;
 % momentum term
 ei.mu = 0.01;
 % learning rate
 ei.alpha = 1e-2;
 % which type of activation function to use in hidden layers
 % feel free to implement support for different activation function
-ei.activation_fun = 'logistic';
+ei.activation_fun = 'tanh';
 
-maxIters=1000;
+maxIters=100;
 
 %% setup random initial weights
 stack = initialize_weights(ei);
@@ -73,18 +91,27 @@ params = stack2params(stack);
 %% setup minfunc options
 options = [];
 options.display = 'final';
-options.maxFunEvals = 1e6;
+options.maxFunEvals = 1e9;
 options.Method = 'lbfgs';
 
 %% run training
         
-        clear supervised_dnn_cost;
-        
-% [opt_params,opt_value,exitflag,output] = minFunc(@supervised_dnn_cost,...
-%     params,options,ei, data_train, onehot(labels_train,newmaxID));
+% For minFunc momentum
+clear supervised_dnn_cost;
 
-[opt_params, sgdLosses] = sgd_nn(@supervised_dnn_cost, params, maxIters, data_train,...
-    onehot(labels_train,newmaxID), ei, 1);
+tic;
+
+if use_mf
+    [opt_params,opt_value,exitflag,output] = minFunc(@supervised_dnn_cost,...
+        params,options,ei, data_train, onehot(labels_train,newmaxID), false);
+    mfTimes(i)=toc;
+    fprintf('minFunc took %f seconds.\n',mfTimes(i));
+else
+    [opt_params, sgdLosses, stop_points(i)] = sgd_nn(@supervised_dnn_cost, params, maxIters, data_train,...
+        onehot(labels_train,newmaxID), ei, 1);
+    sgdTimes(i)=toc;
+    fprintf('SGD took %f seconds.\n',sgdTimes(i));
+end
 
 % TODO:  1) check the gradient calculated by supervised_dnn_cost.m
 % grad_check(@supervised_dnn_cost, params, 50, ei, data_train, onehot(labels_train,newmaxID), false);
@@ -96,12 +123,41 @@ options.Method = 'lbfgs';
 finalStack = params2stack(opt_params, ei);
 
 %% compute accuracy on the test and train set
-[~, ~, pred] = supervised_dnn_cost( opt_params, ei, data_test, [], true);
-[~,pred] = max(pred);
-acc_test = mean(pred'==labels_test);
-fprintf('test accuracy: %f\n', acc_test);
+[~, ~, predo] = supervised_dnn_cost( opt_params, ei, data_test, onehot(labels_test,newmaxID), true);
+[~,pred] = max(predo);
+pred=pred';
+acc_test(i) = mean(pred==labels_test);
+fprintf('test accuracy: %f\n', acc_test(i));
 
-[~, ~, pred] = supervised_dnn_cost( opt_params, ei, data_train, [], true);
+[~, ~, pred] = supervised_dnn_cost( opt_params, ei, data_train, onehot(labels_train,newmaxID), true);
 [~,pred] = max(pred);
-acc_train = mean(pred'==labels_train);
-fprintf('train accuracy: %f\n', acc_train);
+pred=pred';
+acc_train(i) = mean(pred==labels_train);
+fprintf('train accuracy: %f\n', acc_train(i));
+
+end
+
+%% Plot results
+mean(acc_test)
+std(acc_test)
+
+if use_mf
+    %Plot minFunc convergence
+    figure;
+    plot(output.trace.fval);
+    title('NimStim minFunc Training Loss');
+    xlabel('Iteration');
+    ylabel('Loss');
+    save('minFunc_ident_crossval2.mat','acc_test','acc_train','ei');
+else
+    %Plot SGD convergence
+    figure;
+    plot(sgdLosses(10:10:end));
+    title('NimStim SGD Training Loss');
+    xlabel('Iteration');
+    ylabel('Loss');
+    ax = gca;
+    set(ax,'XTickLabel',[10:10:100]);
+    save('sgd_ident_crossval2.mat','sgdLosses','acc_test','acc_train','ei','sgdTimes');
+end
+

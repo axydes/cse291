@@ -1,6 +1,5 @@
 function [ out ] = unhot( vec, min )
-%UNTITLED6 Summary of this function goes here
-%   Detailed explanation goes here
+%unhot go from onehot vector to single integer
 
     [val,idx]=max(vec);
     out=idx+min-1;
